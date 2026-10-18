@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mentalizer</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%2370c2ff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ind:#7b8cff;--ink:#e4e6fa;--mute:#8d90bb;--px:50vw;--py:30vh}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;min-height:100vh;color:var(--ink);font:500 16px/1.6 "Montserrat Alternates","Segoe UI",system-ui,sans-serif;overflow-x:hidden;
+  background:radial-gradient(900px 620px at 12% -8%,#2b2b72aa,transparent 70%),radial-gradient(760px 520px at 92% 108%,#4a2a8c66,transparent 70%),#09091a}
+.spot{position:fixed;inset:0;pointer-events:none;background:radial-gradient(380px at var(--px) var(--py),#6a74ff22,transparent 72%)}
+main{position:relative;max-width:980px;margin:0 auto;padding:0 22px 90px}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--ind);outline-offset:4px}
+
+/* стекло: обводка светится со стороны курсора */
+.glass{position:relative;border-radius:28px;background:linear-gradient(160deg,#25254f,#0f0f21 82%);
+  box-shadow:0 34px 80px -18px #000c,0 0 0 0 #0000,inset 0 1px 0 #ffffff14;transform-style:preserve-3d;will-change:transform}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;
+  background:radial-gradient(240px at var(--lx,50%) var(--ly,-40%),#d4dbff,transparent 72%),#ffffff1c;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:calc(.75 + var(--boost,0)*.25)}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;mix-blend-mode:screen;opacity:var(--gl,0);
+  background:linear-gradient(115deg,transparent calc(var(--gx,50%) - 14%),#8ea0ff40 var(--gx,50%),transparent calc(var(--gx,50%) + 14%))}
+.layer{transform:translateZ(46px);display:block}
+
+/* герой */
+.hero{padding-top:min(15vh,130px);text-align:center}
+.card{display:block;width:min(640px,100%);aspect-ratio:640/300;margin:0 auto;display:grid;place-items:center;opacity:0;animation:in .5s .1s forwards}
+.card .layer{width:80%;height:auto;filter:drop-shadow(0 8px 24px #5a6cff55)}
+.fb{font:600 54px "Montserrat Alternates",sans-serif;letter-spacing:-.02em}
+@keyframes in{to{opacity:1}}
+.lead{margin:42px auto 0;max-width:30ch;color:var(--mute);font-size:19px}
+
+/* окно-демо */
+h2{margin:130px 0 8px;font:600 28px/1.2 "Montserrat Alternates",sans-serif;text-align:center}
+.note{margin:0 0 44px;text-align:center;color:var(--mute);font-size:15px}
+.stage{display:grid;place-items:center;padding:30px 0 10px}
+.win{width:min(700px,100%);padding:22px 24px 26px;touch-action:none;will-change:transform;font-family:Poppins,"Segoe UI",system-ui,sans-serif;font-weight:500}
+.win header{display:flex;align-items:center;justify-content:space-between;cursor:grab;touch-action:none;margin:-8px -10px 14px;padding:8px 10px}
+.win header:active{cursor:grabbing}
+.mini{width:200px;height:60px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(160deg,#35356f,#1d1d44)}
+.mini .layer{width:68%;height:auto;transform:translateZ(22px)}
+.mini .fb{font:600 20px Poppins,sans-serif}
+.close{color:var(--mute);font-size:14px}
+.rows{display:grid;grid-template-columns:1fr 126px;gap:0 22px;align-items:center}
+.row{display:grid;grid-template-columns:152px 1fr 46px;align-items:center;gap:14px;height:52px;font-size:15px;color:#cfd1ee}
+.row span{white-space:nowrap}
+.row i{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);display:inline-block;margin-right:12px}
+.row b{font-weight:400;color:var(--ink)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:8px;outline:0;cursor:pointer;
+  background:linear-gradient(90deg,var(--c) var(--v),#34344f var(--v))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--l);
+  box-shadow:0 0 12px var(--c),0 0 28px color-mix(in srgb,var(--c) 55%,transparent);transition:transform .15s}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:var(--l);
+  box-shadow:0 0 12px var(--c),0 0 28px color-mix(in srgb,var(--c) 55%,transparent)}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.18)}
+.apply{grid-column:2;grid-row:1/4;align-self:center;height:56px;border:1px solid #8c96e640;border-radius:14px;color:#d6d9ff;font:500 16px Poppins,sans-serif;
+  background:#34386a;cursor:pointer;transition:background .2s,box-shadow .2s,transform .15s}
+.apply:hover{background:#4a508e;box-shadow:0 0 30px #5a64ff55}
+.apply:active{transform:scale(.96)}
+.apply.ok{animation:flash .6s}
+@keyframes flash{30%{box-shadow:0 0 0 2px #cdd6ff,0 0 44px #7b8cff}}
+.bio{width:min(700px,100%);margin:30px auto 0;padding:18px 22px;border-radius:18px;background:#0e0e22;border:1px solid #ffffff12;
+  font:14px/1.7 ui-monospace,Consolas,monospace;color:#c9ccf0;white-space:pre}
+.bio small{display:block;margin-bottom:6px;font:12px "Montserrat Alternates",sans-serif;color:var(--mute);white-space:normal}
+
+/* текст */
+.facts{max-width:56ch;margin:120px auto 0;color:var(--mute)}
+.facts p{margin:0 0 18px}
+.facts b{color:var(--ink);font-weight:600}
+footer{margin-top:80px;text-align:center;color:var(--mute);font-size:14px}
+footer a{color:var(--ink);border-bottom:1px solid #ffffff30}
+@media (max-width:640px){.rows{grid-template-columns:1fr}.apply{grid-column:1;grid-row:auto;margin-top:12px}.row{grid-template-columns:124px 1fr 40px;font-size:13px}.mini{width:150px;height:48px}}
+@media (prefers-reduced-motion:reduce){.card{animation:none;opacity:1}}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+main{z-index:1;transition:filter 1s}
+body.dim main{filter:brightness(.55) saturate(.7)}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .9s,transform .9s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+.toast{position:fixed;left:50%;bottom:28px;z-index:5;padding:12px 22px;border-radius:16px;font-size:14px;color:var(--ink);
+  pointer-events:none;opacity:0;transform:translate(-50%,24px);transition:opacity .4s,transform .4s;max-width:min(92vw,520px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+footer{position:relative}
+.sec{position:absolute;right:4px;bottom:-36px;padding:8px;opacity:.1;cursor:default;color:var(--ind);transition:opacity .3s,text-shadow .3s;user-select:none}
+.sec:hover{opacity:.9;text-shadow:0 0 14px var(--ind)}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="spot"></div>
+<main>
+  <section class="hero">
+    <a class="glass tilt card" data-link data-max="14" href="https://github.com/" target="_blank" rel="noopener" aria-label="mentalizer на GitHub">
+      <img class="layer" src="mentalizer_logo.png" alt="mentalizer" onerror="this.replaceWith(Object.assign(document.createElement('b'),{className:'layer fb',textContent:'mentalizer'}))">
+    </a>
+    <p class="lead">Три слайдера раз в час, и состояние в био Telegram обновляется само.</p>
+  </section>
+
+  <h2>Попробуй окно</h2>
+  <p class="note">Тяни за шапку, двигай слайдеры, жми apply. Наведи на логотип.</p>
+  <div class="stage">
+    <div class="glass win" id="win">
+      <header id="grab">
+        <a class="glass tilt mini" data-link data-max="12" href="https://github.com/" target="_blank" rel="noopener" aria-label="mentalizer на GitHub">
+          <img class="layer" src="mentalizer_logo.png" alt="mentalizer" onerror="this.replaceWith(Object.assign(document.createElement('b'),{className:'layer fb',textContent:'mentalizer'}))">
+        </a>
+        <span class="close">preview</span>
+      </header>
+      <div class="rows">
+        <label class="row" style="--c:#a06bff;--l:#c6a6ff"><span><i></i>mental health</span><input type="range" min="0" max="100" value="37" data-k="mental"><b>37%</b></label>
+        <label class="row" style="--c:#5aa9ff;--l:#a8d2ff"><span><i></i>physical health</span><input type="range" min="0" max="100" value="100" data-k="physical"><b>100%</b></label>
+        <label class="row" style="--c:#4de3a0;--l:#9ff5cf"><span><i></i>social life</span><input type="range" min="0" max="100" value="0" data-k="social"><b>0%</b></label>
+        <button class="apply" id="apply" type="button">apply</button>
+      </div>
+    </div>
+  </div>
+  <div class="bio"><small>так выглядит био</small><span id="bio"></span></div>
+
+  <div class="facts">
+    <p><b>Появляется раз в час.</b> Если запущена игра из Steam, окно подождёт и покажется после того, как ты её закроешь.</p>
+    <p><b>Работает на Windows.</b> Python и Telethon, обновляет био от твоего аккаунта.</p>
+  </div>
+  <footer><a data-link href="https://github.com/" target="_blank" rel="noopener">Исходный код на GitHub</a><span class="sec" id="sec">■</span></footer>
+</main>
+<div class="glass toast" id="toast" role="status"></div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const sp=(k,c)=>({x:0,v:0,t:0,k,c}),st=(s,d)=>{s.v+=(s.k*(s.t-s.x)-s.c*s.v)*d;s.x+=s.v*d};
+const clamp=(v,a=-1,b=1)=>Math.max(a,Math.min(b,v));
+let px=innerWidth/2,py=innerHeight/3,V={mental:37,physical:100,social:0},st0='';
+addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY;document.documentElement.style.setProperty('--px',px+'px');document.documentElement.style.setProperty('--py',py+'px')});
+
+// ссылка логотипа берётся из links.json (тот же файл, что у приложения)
+if(location.protocol!=='file:')fetch('links.json').then(r=>r.json()).then(j=>{if(j.logo)$$('[data-link]').forEach(a=>a.href=j.logo)}).catch(()=>{});
+
+// карточки, которые смотрят на курсор
+const tilts=$$('.tilt').map(el=>({el,ax:sp(170,14),ay:sp(170,14),sc:sp(260,17),fl:sp(55,8),max:+el.dataset.max||12,over:false}));
+tilts.forEach(t=>{t.el.addEventListener('pointerenter',()=>t.over=true);t.el.addEventListener('pointerleave',()=>t.over=false)});
+if(!rm){const h=tilts[0];h.ay.x=-26;h.sc.x=-.14}      // появление: карточка «падает» на место
+
+// окно: хват и перемещение
+const win=$('#win'),w={x:0,y:0,px:0,py:0,vx:0,vy:0,drag:false,ox:0,oy:0,ax:sp(170,14),ay:sp(170,14),rl:sp(150,12),sc:sp(260,17),boost:0};
+$('#grab').addEventListener('pointerdown',e=>{if(e.target.closest('a'))return;w.drag=true;w.ox=e.clientX-w.x;w.oy=e.clientY-w.y;e.currentTarget.setPointerCapture(e.pointerId)});
+addEventListener('pointermove',e=>{if(w.drag){w.x=e.clientX-w.ox;w.y=e.clientY-w.oy}});
+addEventListener('pointerup',()=>w.drag=false);
+
+let last=performance.now();
+function frame(now){
+  const d=Math.max(Math.min((now-last)/1000,.033),.001);last=now;
+  for(const g of $$('.glass')){const r=g.getBoundingClientRect();g.style.setProperty('--lx',px-r.left+'px');g.style.setProperty('--ly',py-r.top+'px')}
+  for(const t of tilts){
+    const r=t.el.getBoundingClientRect(),on=t.over&&!rm,dx=clamp((px-(r.left+r.width/2))/(r.width/2)),dy=clamp((py-(r.top+r.height/2))/(r.height/2));
+    t.ax.t=on?dx*t.max:0;t.ay.t=on?-dy*t.max*.75:0;t.sc.t=on?.04:0;[t.ax,t.ay,t.sc,t.fl].forEach(s=>st(s,d));
+    if(t.fl.t&&Math.abs(t.fl.x-360)<.4&&Math.abs(t.fl.v)<2)t.fl.x=t.fl.t=t.fl.v=0;
+    const bob=t===tilts[0]&&!on&&!rm?Math.sin(now/900)*6:0;
+    t.el.style.transform=`translateY(${bob}px) perspective(1000px) rotateY(${t.ax.x+t.fl.x}deg) rotateX(${t.ay.x}deg) scale(${1+t.sc.x})`;
+    t.el.style.setProperty('--gx',50+dx*42+'%');t.el.style.setProperty('--gl',on?.9:0);
+  }
+  const k=1-Math.exp(-d*18);w.vx+=((w.x-w.px)/d-w.vx)*k;w.vy+=((w.y-w.py)/d-w.vy)*k;w.px=w.x;w.py=w.y;
+  const on=w.drag&&!rm;
+  w.ax.t=on?clamp(w.vx/3200)*9:0;w.ay.t=on?-clamp(w.vy/3200)*7:0;w.rl.t=on?clamp(w.vx/9000)*3.5:0;w.sc.t=on?.035:0;
+  [w.ax,w.ay,w.rl,w.sc].forEach(s=>st(s,d));w.boost+=((on?1:0)-w.boost)*(1-Math.exp(-d*12));
+  win.style.transform=`translate(${w.x}px,${w.y}px) perspective(1100px) rotateY(${w.ax.x}deg) rotateX(${w.ay.x}deg) rotateZ(${w.rl.x}deg) scale(${1+w.sc.x})`;
+  win.style.setProperty('--boost',w.boost);win.style.boxShadow=`0 ${34+w.boost*26}px ${80+w.boost*40}px -18px #000c`;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// слайдеры, превью био, apply
+const bar=v=>{const n=Math.floor(v/100*5+.5);return'■'.repeat(n)+'□'.repeat(5-n)};
+function sync(){
+  const v={};$$('input[type=range]').forEach(i=>{v[i.dataset.k]=+i.value;i.style.setProperty('--v',i.value+'%');i.nextElementSibling.textContent=i.value+'%'});
+  V=v;combo(v);
+  $('#bio').textContent=`mental : ${bar(v.mental)}\nphysical : ${bar(v.physical)}\nsocial battery : ${bar(v.social)}`;
+}
+$$('input[type=range]').forEach(i=>i.addEventListener('input',sync));sync();
+$('#apply').addEventListener('click',e=>{toast('bio обновлено');const b=e.currentTarget;b.classList.remove('ok');void b.offsetWidth;b.classList.add('ok')});
+
+// ---- фон: орбы, чьи цвета и яркость зависят от слайдеров; след курсора, кольца кликов, частицы ----
+const cv=$('#fx'),cx=cv.getContext('2d'),trail=[],rings=[],parts=[];let rainEnd=0;
+const fit=()=>{const r=devicePixelRatio||1;cv.width=innerWidth*r;cv.height=innerHeight*r;cx.setTransform(r,0,0,r,0,0)};fit();addEventListener('resize',fit);
+const keys=['mental','physical','social'],cols=[[160,107,255],[90,169,255],[77,227,160],[123,140,255]];
+const orbs=[0,1,2,3,0,1,2].map((k,i)=>({k:k,c:cols[k],x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:190+Math.random()*190,p:i*1.7,s:.12+Math.random()*.18}));
+if(!rm){addEventListener('pointermove',e=>trail.push({x:e.clientX,y:e.clientY,t:performance.now()}));
+  addEventListener('pointerdown',e=>rings.push({x:e.clientX,y:e.clientY,t:performance.now()}))}
+const blocks=(x,y,n,v)=>{for(let i=0;i<n;i++){const a=Math.random()*6.28,s=(v||1)*(120+Math.random()*420);
+  parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-200,g:620,ch:Math.random()<.5?'■':'□',c:cols[i%4],sz:12+Math.random()*14,life:2.2+Math.random()})}};
+function fx(){
+  requestAnimationFrame(fx);const now=performance.now();
+  const W=innerWidth,H=innerHeight,t=now/1000;cx.clearRect(0,0,W,H);cx.globalCompositeOperation='lighter';
+  for(const o of orbs){const amt=o.k<3?V[keys[o.k]]/100:.55,k=(o.k+1)*.035;
+    const x=o.x+Math.sin(t*o.s+o.p)*90+(px-W/2)*k,y=o.y+Math.cos(t*o.s*.8+o.p)*70+(py-H/2)*k,g=cx.createRadialGradient(x,y,0,x,y,o.r);
+    g.addColorStop(0,`rgba(${o.c},${.05+amt*.14})`);g.addColorStop(1,`rgba(${o.c},0)`);cx.fillStyle=g;cx.fillRect(x-o.r,y-o.r,o.r*2,o.r*2)}
+  for(let i=trail.length-1;i>=0;i--){const a=Math.min(1,1-(now-trail[i].t)/700);if(a<=0){trail.splice(i,1);continue}
+    cx.fillStyle=`rgba(140,152,255,${a*.35})`;cx.beginPath();cx.arc(trail[i].x,trail[i].y,2+a*6,0,6.28);cx.fill()}
+  for(let i=rings.length-1;i>=0;i--){const u=Math.max(0,(now-rings[i].t)/650);if(u>=1){rings.splice(i,1);continue}
+    cx.strokeStyle=`rgba(170,180,255,${(1-u)*.6})`;cx.lineWidth=2;cx.beginPath();cx.arc(rings[i].x,rings[i].y,u*110,0,6.28);cx.stroke()}
+  if(now<rainEnd)for(let i=0;i<2;i++)parts.push({x:Math.random()*W,y:-20,vx:0,vy:160+Math.random()*220,g:0,ch:Math.random()<.5?'■':'□',c:cols[3],sz:14+Math.random()*8,life:6});
+  cx.font='16px ui-monospace,Consolas,monospace';
+  for(let i=parts.length-1;i>=0;i--){const q=parts[i],d=1/60;q.life-=d;if(q.life<=0||q.y>H+30){parts.splice(i,1);continue}
+    q.vy+=q.g*d;q.x+=q.vx*d;q.y+=q.vy*d;cx.globalAlpha=Math.min(1,q.life)*.8;cx.fillStyle=`rgb(${q.c})`;cx.font=q.sz+'px ui-monospace,Consolas,monospace';cx.fillText(q.ch,q.x,q.y)}
+  cx.globalAlpha=1}
+if(rm){px=innerWidth/2;py=innerHeight/3}requestAnimationFrame(fx);
+
+// ---- появление блоков при прокрутке ----
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+$$('h2,.note,.stage,.bio,.facts,footer').forEach(el=>{el.classList.add('rv');io.observe(el)});
+
+// ---- уведомления и пасхалки ----
+const tt=$('#toast');let tto;const toast=(m,ms=3400)=>{tt.textContent=m;tt.classList.add('on');clearTimeout(tto);tto=setTimeout(()=>tt.classList.remove('on'),ms)};
+const flip=t=>{t.fl.x=t.fl.v=0;t.fl.t=360};
+tilts.forEach(t=>t.el.addEventListener('contextmenu',e=>{e.preventDefault();flip(t);blocks(e.clientX,e.clientY,26,.6);toast('правый клик? у меня тоже тяжёлый день')}));
+const kon='ArrowUp,ArrowUp,ArrowDown,ArrowDown,ArrowLeft,ArrowRight,ArrowLeft,ArrowRight,b,a'.split(',');let ki=0,buf='';
+addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;ki=k===kon[ki]?ki+1:(k===kon[0]?1:0);
+  if(ki===kon.length){ki=0;flip(tilts[0]);blocks(innerWidth/2,innerHeight/2,160,1.4);toast('режим радуги: +100 к социальной батарейке',4200);
+    const h=document.documentElement.style;h.transition='filter 1.2s';h.filter='hue-rotate(150deg) saturate(1.3)';setTimeout(()=>h.filter='',5200)}
+  if(e.key.length===1){buf=(buf+k).slice(-10);if(buf==='mentalizer'){buf='';rainEnd=performance.now()+7000;toast('■■■■■ полный заряд')}}});
+function combo(v){const n=v.mental+v.physical+v.social;const m=n===0?'zero':n===300?'full':'';if(m===st0)return;st0=m;
+  document.body.classList.toggle('dim',m==='zero');
+  if(m==='zero')toast('энергосбережение: всё по нулям, самое время поспать',4200);
+  if(m==='full'){blocks(innerWidth/2,innerHeight*.4,120,1.2);toast('идеальный день: ■■■■■ ×3',4200)}}
+const quotes=['батарейка садится не от людей, а от необходимости их изображать','режим «не беспокоить» тоже форма заботы','■□□□□ это не диагноз, это погода','сегодня достаточно просто закрыть вкладку','воду пить не забыл?','если читаешь это ночью: иди спать, mentalizer подождёт'];
+let qi=0;$('#sec').addEventListener('click',()=>{toast(quotes[qi++%quotes.length],4200);blocks(innerWidth-60,innerHeight-60,10,.5)});
+// ---- заголовок вкладки: бегущая строка на странице, «грустнеет» при уходе, радуется при возвращении ----
+const NAME='mentalizer',FRAME=160,CYCLE=5000;                      // FRAME — шаг бегущей строки, CYCLE — длина цикла на странице
+const sub=NAME+'\u00A0',marq=[...Array.from({length:sub.length},(_,i)=>sub.slice(i)+sub.slice(0,i)),NAME];   // 'mentalizer ' … ' mentalizer', 'mentalizer'
+const away=[['■■■■□ хей!',500],['■■■□□ вернись!',500],['■■□□□ :(',500],['■□□□□ . . .',500],['□□□□□ . . .',0]];
+const back=[['■□□□□ :3',100],['■■□□□ :3',100],['■■■□□ :3',100],['■■■■□ :3',100],['■■■■■ :3',1000],[NAME,5000]];
+// таймеры в воркере: в фоновой вкладке обычные setTimeout замедляются до раза в секунду
+let wk=null,cbs={},cur=0;try{wk=new Worker(URL.createObjectURL(new Blob(['onmessage=e=>setTimeout(()=>postMessage(e.data),e.data.ms)'])));
+  wk.onmessage=e=>{if(e.data.id===cur&&cbs[cur])cbs[cur]()}}catch(_){wk=null}
+const later=(ms,fn)=>{const id=++cur;cbs[id]=fn;wk?wk.postMessage({id,ms}):setTimeout(()=>{if(id===cur)fn()},ms)};
+const seq=(list,done)=>{let i=0;(function go(){const [t,ms]=list[i++];document.title=t;if(i<list.length||done)later(ms,i<list.length?go:done)})()};
+function marquee(){if(rm){document.title=NAME;return}let i=0;(function go(){document.title=marq[i];if(++i<marq.length)later(FRAME,go);else later(Math.max(CYCLE-FRAME*(marq.length-1),FRAME),marquee)})()}
+document.addEventListener('visibilitychange',()=>{cur++;document.hidden?seq(away):seq(back,marquee)});
+marquee();
+let idle,told=false;const rest=()=>{clearTimeout(idle);if(!told)idle=setTimeout(()=>{told=true;toast('Как ты? Подвигай слайдеры',5200)},45000)};
+['pointermove','keydown','scroll'].forEach(ev=>addEventListener(ev,rest,{passive:true}));rest();
+console.log('%c■■■■□ mentalizer','font:600 18px system-ui;color:#8ea0ff','\nпривет из консоли. Попробуй: ↑↑↓↓←→←→BA, набери «mentalizer», правый клик по логотипу или загляни в самый низ страницы.');
+</script>
+</body>
+</html>
